@@ -130,3 +130,5 @@ dmypy.json
 
 # all DS_Store
 .DS_Store*
+names/
+data/
