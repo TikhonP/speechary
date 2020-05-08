@@ -1,28 +1,90 @@
-from difflib import get_close_matches
+from difflib import get_close_matches, SequenceMatcher
 import sys
+from transliterate import translit
+import re
+from transliterate.exceptions import LanguageDetectionError
+import numpy as np
+
+emoji_pattern = re.compile("["
+                           u"\U0001F600-\U0001F64F"
+                           u"\U0001F300-\U0001F5FF"
+                           u"\U0001F680-\U0001F6FF"
+                           u"\U0001F1E0-\U0001F1FF"
+                           "]+", flags=re.UNICODE)
 
 
-filename='names/yob2018.txt'
+filename = 'names/yob2018.txt'
 with open(filename, 'r') as f:
-    data = f.read()
+    ddata = f.read()
 
-data = data.split(sep='\n')
-for i, line in enumerate(data):
-    data[i] = line.split(sep=',')
-
+ddata = ddata.split(sep='\n')
+data = []
+for line in ddata:
+    if line=='':
+        continue
+    data.append(line.split(sep=','))
+m = np.mean([int(i[2]) for i in data])
 patterns = [i[0] for i in data]
 
 
-def closeMatches(name):
+def splits(txt, seps):
+    default_sep = seps[0]
+
+    # we skip seps[0] because that's the default separator
+    for sep in seps[1:]:
+        txt = txt.replace(sep, default_sep)
+    return [i.strip() for i in txt.split(default_sep)]
+
+
+def returnmatches(name):
     matshes = get_close_matches(name, patterns)
-    if len(matshes)>0:
-        ind = patterns.index(matshes[0])
-        return data[ind][1]
+    if len(matshes) > 0:
+        for i, n in enumerate(matshes):
+            score = SequenceMatcher(None, name, n).ratio()
+            matshes[i] = (n, score)
+            break
+        return matshes
     else:
         return None
 
-if __name__=='__main__':
-    if len(sys.argv)==1:
+
+def translitt(s):
+    s = emoji_pattern.sub(r'', s)
+    try:
+        return translit(s, reversed=True)
+    except LanguageDetectionError:
+        return s
+
+def scores(matshes):
+    matshes = sorted(matshes, key=lambda l:l[2], reverse=False)
+    scores = [('M', 0), ('F', 0)]
+    for i in matshes:
+        if i[0]=='M':
+            scores[0][1]+=i[2]
+        elif i[0]=='F':
+            scores[1][1]+=i[2]
+
+def closeMatches(name):
+    name = translitt(name)
+    names = splits(name, ('_', '.', '-', ' '))
+    matshes = []
+    for n in names:
+        matsh = returnmatches(n)
+        if matsh is None:
+            continue
+        gender = data[patterns.index(matsh[0][0])]
+        if matsh[0][1]<0.80:
+            continue
+        matshes.append((gender[1], matsh[0][0], matsh[0][1]))
+    # scores(matshes)
+    if matshes==[]:
+        return None
+    else:
+        return matshes
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
         print('Usage: python parsenames.py <name>')
-        sys.exit();
+        sys.exit()
     print(closeMatches(sys.argv[1]))
