@@ -4,6 +4,7 @@ from transliterate import translit
 import re
 from transliterate.exceptions import LanguageDetectionError
 import numpy as np
+from datetime import datetime
 
 emoji_pattern = re.compile("["
                            u"\U0001F600-\U0001F64F"
@@ -56,13 +57,14 @@ def translitt(s):
         return s
 
 def scores(matshes):
-    matshes = sorted(matshes, key=lambda l:l[2], reverse=False)
-    scores = [('M', 0), ('F', 0)]
+    scores = [['M', 0], ['F', 0]]
     for i in matshes:
         if i[0]=='M':
             scores[0][1]+=i[2]
         elif i[0]=='F':
             scores[1][1]+=i[2]
+    scores = sorted(scores, key=lambda l:l[1], reverse=True)
+    return scores[0][0]
 
 def closeMatches(name):
     name = translitt(name)
@@ -76,15 +78,17 @@ def closeMatches(name):
         if matsh[0][1]<0.80:
             continue
         matshes.append((gender[1], matsh[0][0], matsh[0][1]))
-    # scores(matshes)
+    true_gender = scores(matshes)
     if matshes==[]:
         return None
     else:
-        return matshes
+        return (true_gender, matshes)
 
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         print('Usage: python parsenames.py <name>')
         sys.exit()
+    start_time = datetime.now()
     print(closeMatches(sys.argv[1]))
+    print(datetime.now() - start_time)
