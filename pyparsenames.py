@@ -1,10 +1,9 @@
 from difflib import get_close_matches, SequenceMatcher
-import sys
 from transliterate import translit
 import re
 from transliterate.exceptions import LanguageDetectionError
 import numpy as np
-from datetime import datetime
+
 
 emoji_pattern = re.compile("["
                            u"\U0001F600-\U0001F64F"
@@ -68,7 +67,8 @@ def scores(matshes):
 
 def closeMatches(name):
     name = translitt(name)
-    names = splits(name, ('_', '.', '-', ' '))
+    names = splits(name, ('_', '.', '-', ' ', '1', '2', '3', '4',
+                   '5', '6', '7', '8', '9', '0'))
     matshes = []
     for n in names:
         matsh = returnmatches(n)
@@ -86,6 +86,8 @@ def closeMatches(name):
 
 
 if __name__ == '__main__':
+    from datetime import datetime
+    import sys
     if len(sys.argv) == 1:
         print('Usage: python parsenames.py <name>')
         sys.exit()
