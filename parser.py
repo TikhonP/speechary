@@ -1,12 +1,12 @@
+import requests
+from time import sleep
+from threading import Thread
+from traceback import print_exc
+from requests import get
+import random
+import json
 parseids = open('1.txt').read().split('\n')
 proxies = open('proxies.txt').read().split('\n')
-import json
-import random
-from requests import get
-from traceback import print_exc
-from threading import Thread
-from time import sleep
-import requests
 
 
 def generate_ua():
@@ -43,7 +43,7 @@ def extract_values(obj, key):
 
 
 def extract_information(user_id):
-    """Get all the information for the given username"""
+    """Get all the information for the given username."""
     uag = generate_ua()
     headers = {
         'User-Agent': uag,
@@ -63,22 +63,23 @@ def extract_information(user_id):
         photos = []
         caption = []
         likes = []
-        root = profile["edge_owner_to_timeline_media"]["edges"]
+        root = profile['edge_owner_to_timeline_media']['edges']
         for node in root:
-            photos.append(node["node"]["display_url"])
-            caption.append(node["node"]["edge_media_to_caption"]["edges"][0]["node"]["text"])
-            likes.append(node["node"]["edge_liked_by"]["count"])
+            photos.append(node['node']['display_url'])
+            caption.append(node['node']['edge_media_to_caption']
+                           ['edges'][0]['node']['text'])
+            likes.append(node['node']['edge_liked_by']['count'])
 
         data = {
             'user_id': profile['id'],
             'avatar': profile['profile_pic_url_hd'],
-            'full_name': profile["full_name"],
-            'media_count': profile["edge_owner_to_timeline_media"]["count"],
-            'biography': profile["biography"],
-            'follower_count': profile["edge_followed_by"]["count"],
-            'following_count': profile["edge_follow"]["count"],
+            'full_name': profile['full_name'],
+            'media_count': profile['edge_owner_to_timeline_media']['count'],
+            'biography': profile['biography'],
+            'follower_count': profile['edge_followed_by']['count'],
+            'following_count': profile['edge_follow']['count'],
             'username': username,
-            'last_post_at': root[0]["node"]["taken_at_timestamp"],
+            'last_post_at': root[0]['node']['taken_at_timestamp'],
             'photo_urls': photos,
             'caption': caption,
             'likes': likes

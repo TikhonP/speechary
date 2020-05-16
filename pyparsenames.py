@@ -5,12 +5,12 @@ from transliterate.exceptions import LanguageDetectionError
 import numpy as np
 
 
-emoji_pattern = re.compile("["
-                           u"\U0001F600-\U0001F64F"
-                           u"\U0001F300-\U0001F5FF"
-                           u"\U0001F680-\U0001F6FF"
-                           u"\U0001F1E0-\U0001F1FF"
-                           "]+", flags=re.UNICODE)
+emoji_pattern = re.compile('['
+                           u'\U0001F600-\U0001F64F'
+                           u'\U0001F300-\U0001F5FF'
+                           u'\U0001F680-\U0001F6FF'
+                           u'\U0001F1E0-\U0001F1FF'
+                           ']+', flags=re.UNICODE)
 
 
 filename = 'names/yob2018.txt'
@@ -20,7 +20,7 @@ with open(filename, 'r') as f:
 ddata = ddata.split(sep='\n')
 data = []
 for line in ddata:
-    if line=='':
+    if line == '':
         continue
     data.append(line.split(sep=','))
 m = np.mean([int(i[2]) for i in data])
@@ -55,31 +55,33 @@ def translitt(s):
     except LanguageDetectionError:
         return s
 
+
 def scores(matshes):
     scores = [['M', 0], ['F', 0]]
     for i in matshes:
-        if i[0]=='M':
-            scores[0][1]+=i[2]
-        elif i[0]=='F':
-            scores[1][1]+=i[2]
-    scores = sorted(scores, key=lambda l:l[1], reverse=True)
+        if i[0] == 'M':
+            scores[0][1] += i[2]
+        elif i[0] == 'F':
+            scores[1][1] += i[2]
+    scores = sorted(scores, key=lambda l: l[1], reverse=True)
     return scores[0][0]
+
 
 def closeMatches(name):
     name = translitt(name)
     names = splits(name, ('_', '.', '-', ' ', '1', '2', '3', '4',
-                   '5', '6', '7', '8', '9', '0'))
+                          '5', '6', '7', '8', '9', '0'))
     matshes = []
     for n in names:
         matsh = returnmatches(n)
         if matsh is None:
             continue
         gender = data[patterns.index(matsh[0][0])]
-        if matsh[0][1]<0.80:
+        if matsh[0][1] < 0.80:
             continue
         matshes.append((gender[1], matsh[0][0], matsh[0][1]))
     true_gender = scores(matshes)
-    if matshes==[]:
+    if matshes == []:
         return None
     else:
         return (true_gender, matshes)

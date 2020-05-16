@@ -16,23 +16,23 @@ for index, row in data.iterrows():
     matches = closeMatches(row['username'])
     if matches is None:
         nonescore += 1
-        if row['gender']=='none':
+        if row['gender'] == 'none':
             nnscore += 1
             score = np.append(score, np.array([1]))
         else:
             score = np.append(score, np.array([0]))
     else:
 
-        if row['gender']=='female' and matches[0][0]=='F':
+        if row['gender'] == 'female' and matches[0][0] == 'F':
             score = np.append(score, np.array([1]))
-            if matches[0][2]<falsesocore:
+            if matches[0][2] < falsesocore:
                 truescore = matches[0][2]
-        elif row['gender']=='male' and matches[0][0]=='M':
+        elif row['gender'] == 'male' and matches[0][0] == 'M':
             score = np.append(score, np.array([1]))
-            if matches[0][2]<falsesocore:
+            if matches[0][2] < falsesocore:
                 truescore = matches[0][2]
         else:
-            if matches[0][2]<falsesocore:
+            if matches[0][2] < falsesocore:
                 falsesocore = matches[0][2]
             score = np.append(score, np.array([0]))
 
