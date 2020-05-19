@@ -34,13 +34,16 @@ class closeMatches:
     def __init__(self):
         self.sp = parsenames.readdata()
 
-    def find(self, name):
+    def find(self, name, translit=True):
         """find gender by name.
 
         name: string
+        translit: bool, include or not python translit, default True
         returns tuple gender (char) and score
         """
-
+        
+        if translit:
+            name = pn.translitt(name)
         score = ctypes.c_double(0.)
         a = parsenames.gender(self.sp, name.encode(
             'utf-8'), ctypes.byref(score))
